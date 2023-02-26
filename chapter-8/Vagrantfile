@@ -1,0 +1,35 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/jammy64"
+  # config.vm.box = "ubuntu/kinetic64"
+  config.vm.disk :disk, size: "20GB"
+  # config.vm.network "private_network", ip: "192.168.56.11"
+  config.vm.synced_folder ".", "/home/vagrant/go/src/github.com/mozillazg/cloud-native-security-with-ebpf/chapter8", create: true
+  config.ssh.extra_args = ["-t", "cd /home/vagrant/go/src/github.com/mozillazg/cloud-native-security-with-ebpf/chapter8; bash --login"]
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 2048
+    v.cpus = 2
+  end
+
+  # install dependencies
+  config.vm.provision "shell", inline: <<-SHELL
+      cd /home/vagrant/go/src/github.com/mozillazg/cloud-native-security-with-ebpf/chapter8
+
+      sed -i "s@http://.*archive.ubuntu.com@https://mirrors.tuna.tsinghua.edu.cn@g" /etc/apt/sources.list
+      sed -i "s@http://.*security.ubuntu.com@https://mirrors.tuna.tsinghua.edu.cn@g" /etc/apt/sources.list
+      apt-get update
+      apt-get update
+
+      apt-get install --yes build-essential pkgconf libelf-dev llvm-12 clang-12 linux-tools-$(uname -r)
+      for tool in "clang" "llc" "llvm-strip"
+      do
+        path=$(which $tool-12)
+        ln -s -f $path ${path%-*}
+      done
+
+      snap install go --channel=1.18/stable --classic
+      chown vagrant -R /home/vagrant/go/
+      grep GOPROXY /home/vagrant/.bashrc || \
+          echo 'export GOPROXY=https://goproxy.cn,direct' >> /home/vagrant/.bashrc
+
+  SHELL
+end
