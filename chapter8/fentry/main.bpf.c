@@ -40,7 +40,7 @@ int BPF_PROG(fexit_sys_execve, void *tmp, long ret) {
     pid_t tid;
     struct event_t *event;
 
-    // 获取 fentry_do_execve 中保存的 event 信息
+    // 获取 fentry_sys_execve 中保存的 event 信息
     tid = (pid_t)bpf_get_current_pid_tgid();
     event = bpf_map_lookup_elem(&execs, &tid);
     if (!event)

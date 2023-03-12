@@ -2,7 +2,7 @@
 SHELL = /bin/sh
 
 OUTPUT = ../output
-LIBBPF = ../libbpf
+LIBBPF = ../../libbpf
 
 
 LIBBPF_SRC = $(abspath $(LIBBPF)/src)

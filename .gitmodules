@@ -1,3 +1,3 @@
-[submodule "chapter8/libbpf"]
-    path = chapter8/libbpf
-    url = https://github.com/libbpf/libbpf.git
+[submodule "libbpf"]
+	path = libbpf
+	url = https://github.com/libbpf/libbpf.git

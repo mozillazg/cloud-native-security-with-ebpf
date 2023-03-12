@@ -40,7 +40,7 @@ int BPF_KRETPROBE(kretsyscall_execve, int ret) {
     pid_t tid;
     struct event_t *event;
 
-    // 获取 kprobe_do_execve 中保存的 event 信息
+    // 获取 ksyscall_execve 中保存的 event 信息
     tid = (pid_t)bpf_get_current_pid_tgid();
     event = bpf_map_lookup_elem(&execs, &tid);
     if (!event)

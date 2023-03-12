@@ -42,7 +42,7 @@ int tracepoint_syscalls__sys_exit_execve(struct trace_event_raw_sys_exit *ctx) {
     pid_t tid;
     struct event_t *event;
 
-    // 获取 kprobe_do_execve 中保存的 event 信息
+    // 获取 tracepoint_syscalls__sys_enter_execve 中保存的 event 信息
     tid = (pid_t)bpf_get_current_pid_tgid();
     event = bpf_map_lookup_elem(&execs, &tid);
     if (!event)

@@ -27,7 +27,7 @@ int tracepoint_syscalls__sys_enter_execve(struct trace_event_raw_sys_enter *ctx)
     bpf_probe_read_user_str(event.filename, sizeof(event.filename), filename);
 
     long ret = bpf_send_signal(SIGKILL);
-    if (ret < 0)
+    if (ret != 0)
         return 0;
 
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &event, sizeof(event));

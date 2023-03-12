@@ -1,4 +1,4 @@
-module github.com/mozillazg/cloud-native-security-with-ebpf/chapter8/kprobe
+module github.com/mozillazg/cloud-native-security-with-ebpf/chapter8/bpf_send_signal
 
 go 1.18
 
