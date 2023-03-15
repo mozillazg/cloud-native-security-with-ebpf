@@ -1,4 +1,4 @@
-module github.com/mozillazg/cloud-native-security-with-ebpf/chapter9/lsm
+module github.com/mozillazg/cloud-native-security-with-ebpf/chapter10/lsm-block
 
 go 1.18
 

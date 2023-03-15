@@ -5,63 +5,41 @@
 #include "main.h"
 
 struct {
-    __uint(type, BPF_MAP_TYPE_HASH);
-    __uint(max_entries, 10240);
-    __type(key, pid_t);
-    __type(value, struct event_t);
-} entries SEC(".maps");
-
-struct {
     __uint(type, BPF_MAP_TYPE_PERF_EVENT_ARRAY);
     __uint(key_size, sizeof(u32));
     __uint(value_size, sizeof(u32));
 } events SEC(".maps");
 
-
-static void get_file_path(const struct path *path, char *buf, size_t size)
+static void get_file_path(const struct file *file, char *buf, size_t size)
 {
     struct qstr dname;
 
-    dname = BPF_CORE_READ(path, dentry, d_name);
+    dname = BPF_CORE_READ(file, f_path.dentry, d_name);
     bpf_probe_read_kernel(buf, size, dname.name);
 }
 
-SEC("kprobe/vfs_open")
-int BPF_KPROBE(kprobe_vfs_open, const struct path *path, struct file *file) {
-    pid_t tid;
-    struct event_t event = {};
-
-    tid = (pid_t)bpf_get_current_pid_tgid();
-    event.pid = bpf_get_current_pid_tgid() >> 32;
-    bpf_get_current_comm(&event.comm, sizeof(event.comm));
-    // 获取打开模式
-    event.fmode = BPF_CORE_READ(file, f_mode);
-    // 获取文件名称
-    get_file_path(path, event.filename, sizeof(event.filename));
-
-    // 保存获取到的 event 信息
-    bpf_map_update_elem(&entries, &tid, &event, BPF_NOEXIST);
-    return 0;
+static bool is_suid_file(const struct file *file) {
+    umode_t mode = BPF_CORE_READ(file, f_inode, i_mode);
+    return S_ISREG(mode) && S_ISSUID(mode);
 }
 
-SEC("kretprobe/vfs_open")
-int BPF_KRETPROBE(kretprobe_vfs_open, long ret) {
-    pid_t tid;
-    struct event_t *event;
+SEC("kprobe/security_bprm_check")
+int BPF_KPROBE(kprobe_security_bprm_check, struct linux_binprm *bprm) {
+    struct event_t event = {};
+    struct file *file = BPF_CORE_READ(bprm, file);
 
-    // 获取 kprobe_vfs_open 中保存的 event 信息
-    tid = (pid_t)bpf_get_current_pid_tgid();
-    event = bpf_map_lookup_elem(&entries, &tid);
-    if (!event)
+    // 判断是否是拥有 suid 权限的文件
+    if (!is_suid_file(file))
         return 0;
 
-    // 保存执行结果
-    event->ret = (int)ret;
-    // 将事件提交到 events 中供用户态程序消费
-    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, event, sizeof(*event));
+    u32 uid = bpf_get_current_uid_gid();
+    event.uid = uid;
+    event.pid = bpf_get_current_pid_tgid() >> 32;
+    bpf_get_current_comm(&event.comm, sizeof(event.comm));
 
-    // 删除保存的 event 信息
-    bpf_map_delete_elem(&entries, &tid);
+    get_file_path(file, event.filename, sizeof(event.filename));
+
+    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &event, sizeof(event));
     return 0;
 }
 

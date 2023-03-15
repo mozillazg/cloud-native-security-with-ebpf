@@ -1,4 +1,4 @@
-module github.com/mozillazg/cloud-native-security-with-ebpf/chapter9/kprobe
+module github.com/mozillazg/cloud-native-security-with-ebpf/chapter10/kprobe
 
 go 1.18
 

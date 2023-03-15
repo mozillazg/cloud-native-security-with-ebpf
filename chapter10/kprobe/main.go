@@ -13,9 +13,8 @@ import (
 )
 
 type Event struct {
+	Uid      uint32
 	Pid      uint32
-	Fmode    int32
-	Ret      int32
 	Comm     [16]byte
 	Filename [16]byte
 }
@@ -34,13 +33,20 @@ func goString(data []byte) string {
 }
 
 func main() {
+	var err error
+	defer func() {
+		if err != nil {
+			log.Fatalf("%+v", err)
+		}
+	}()
+
 	bpfModule, err := bpf.NewModuleFromFile("main.bpf.o")
 	if err != nil {
-		log.Fatalln(err)
+		return
 	}
 	defer bpfModule.Close()
-	if err := bpfModule.BPFLoadObject(); err != nil {
-		log.Fatalln(err)
+	if err = bpfModule.BPFLoadObject(); err != nil {
+		return
 	}
 	progIter := bpfModule.Iterator()
 	for {
@@ -48,9 +54,9 @@ func main() {
 		if prog == nil {
 			break
 		}
-		_, err := prog.AttachGeneric()
+		_, err = prog.AttachGeneric()
 		if err != nil {
-			log.Fatalln(err)
+			return
 		}
 	}
 	log.Println("tracing...")
@@ -58,7 +64,7 @@ func main() {
 	lostChannel := make(chan uint64)
 	pb, err := bpfModule.InitPerfBuf("events", eventsChannel, lostChannel, 1024)
 	if err != nil {
-		log.Fatalln(err)
+		return
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 
@@ -73,12 +79,13 @@ loop:
 	for {
 		select {
 		case data := <-eventsChannel:
-			event, err := parseEvent(data)
-			if err != nil {
-				log.Println(err)
+			event, e := parseEvent(data)
+			if e != nil {
+				err = e
+				return
 			} else {
-				log.Printf("pid: %d comm: %s filename: %s mode: %d ret: %d", event.Pid,
-					goString(event.Comm[:]), goString(event.Filename[:]), event.Fmode, event.Ret)
+				log.Printf("uid: %d pid: %d comm: %s filename: %s", event.Uid, event.Pid,
+					goString(event.Comm[:]), goString(event.Filename[:]))
 			}
 		case n := <-lostChannel:
 			log.Printf("lost %d events", n)

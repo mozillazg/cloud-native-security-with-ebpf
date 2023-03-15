@@ -23,32 +23,25 @@ static bool is_suid_file(const struct file *file) {
     return S_ISREG(mode) && S_ISSUID(mode);
 }
 
-SEC("lsm/bprm_check_security")
-int BPF_PROG(lsm_bprm_check_security, struct linux_binprm *bprm) {
+SEC("lsm/file_open")
+int BPF_PROG(lsm_file_open, struct file *file) {
     struct event_t event = {};
-    struct file *file = BPF_CORE_READ(bprm, file);
 
     // 判断是否是拥有 suid 权限的文件
     if (!is_suid_file(file))
         return 0;
 
     u32 uid = bpf_get_current_uid_gid();
-    u32 gid = bpf_get_current_uid_gid() >> 32;
-
-    // 放行 root user 或 root group 下的 user
-//    if (uid == 0 || gid == 0)
-//        return 0;
-
     event.uid = uid;
-    event.gid = gid;
     event.pid = bpf_get_current_pid_tgid() >> 32;
     bpf_get_current_comm(&event.comm, sizeof(event.comm));
+
+    event.fmode = BPF_CORE_READ(file, f_mode);
     get_file_path(file, event.filename, sizeof(event.filename));
 
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &event, sizeof(event));
 
-    // 拦截
-    return -1;
+    return 0;
 }
 
 char _license[] SEC("license") = "GPL";
