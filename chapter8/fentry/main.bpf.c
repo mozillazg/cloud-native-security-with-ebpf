@@ -41,7 +41,7 @@ int BPF_PROG(fentry_sys_execve, struct pt_regs *regs) {
 }
 
 SEC("fexit/__x64_sys_execve")
-int BPF_PROG(fexit_sys_execve, void *tmp, long ret) {
+int BPF_PROG(fexit_sys_execve, struct pt_regs *regs, long ret) {
     pid_t tid;
     struct event_t *event;
 
