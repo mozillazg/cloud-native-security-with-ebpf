@@ -20,10 +20,14 @@ struct {
 SEC("tracepoint/syscalls/sys_enter_execve")
 int tracepoint_syscalls__sys_enter_execve(struct trace_event_raw_sys_enter *ctx) {
     pid_t tid;
+    struct task_struct *task;
     struct event_t event = {};
     char *filename;
 
     tid = (pid_t)bpf_get_current_pid_tgid();
+    task = (struct task_struct*)bpf_get_current_task();
+    // 执行操作的进程 id
+    event.ppid = (pid_t)BPF_CORE_READ(task, real_parent, tgid);
     // 获取进程 id
     event.pid = bpf_get_current_pid_tgid() >> 32;
     // 执行 execve 的进程名称
