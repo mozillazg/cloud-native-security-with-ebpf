@@ -13,6 +13,7 @@ import (
 )
 
 type Event struct {
+	Ppid      uint32
 	Pid      uint32
 	Ret      int32
 	Comm     [16]byte
@@ -84,7 +85,7 @@ loop:
 				err = e
 				return
 			} else {
-				log.Printf("pid: %d comm: %s filename: %s ret: %d", event.Pid,
+				log.Printf("ppid: %d pid: %d comm: %s filename: %s ret: %d", event.Ppid, event.Pid,
 					goString(event.Comm[:]), goString(event.Filename[:]), event.Ret)
 			}
 		case n := <-lostChannel:
