@@ -18,7 +18,7 @@ struct {
 } events SEC(".maps");
 
 SEC("kprobe/__x64_sys_execve")
-int BPF_KPROBE(kprobe_sys_execve, const char *filename) {
+int BPF_KPROBE(kprobe_sys_execve, struct pt_regs *regs) {
     pid_t tid;
     struct event_t event = {};
 
@@ -28,7 +28,8 @@ int BPF_KPROBE(kprobe_sys_execve, const char *filename) {
     // 执行 execve 的进程名称
     bpf_get_current_comm(&event.comm, sizeof(event.comm));
     // 获取被执行的程序的名称
-    // bpf_probe_read_user_str(event.filename, sizeof(event.filename), (const char*)filename);
+    char *filename = (char *)PT_REGS_PARM1_CORE(regs);
+    bpf_core_read_user_str(event.filename, sizeof(event.filename), filename);
 
     // 保存获取到的 event 信息
     bpf_map_update_elem(&execs, &tid, &event, BPF_NOEXIST);
