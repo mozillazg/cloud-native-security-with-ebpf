@@ -14,10 +14,13 @@ SEC("tracepoint/syscalls/sys_enter_execve")
 int tracepoint_syscalls__sys_enter_execve(struct trace_event_raw_sys_enter *ctx) {
     pid_t tid;
     struct event_t event = {};
+    struct task_struct *task;
     char *filename;
-    u32 SIGKILL = 9;
 
     tid = (pid_t)bpf_get_current_pid_tgid();
+    task = (struct task_struct*)bpf_get_current_task();
+    // 执行操作的进程 id
+    event.ppid = (pid_t)BPF_CORE_READ(task, real_parent, tgid);
     // 获取进程 id
     event.pid = bpf_get_current_pid_tgid() >> 32;
     // 执行 execve 的进程名称
@@ -26,9 +29,12 @@ int tracepoint_syscalls__sys_enter_execve(struct trace_event_raw_sys_enter *ctx)
     filename = (char *)BPF_CORE_READ(ctx, args[0]);
     bpf_probe_read_user_str(event.filename, sizeof(event.filename), filename);
 
+    // 终止新创建的进程
     long ret = bpf_send_signal(SIGKILL);
-    if (ret != 0)
+    if (ret != 0) {
+        // 操作失败
         return 0;
+    }
 
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &event, sizeof(event));
     return 0;

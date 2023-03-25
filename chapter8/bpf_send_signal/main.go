@@ -13,9 +13,10 @@ import (
 )
 
 type Event struct {
+	Ppid      uint32
 	Pid      uint32
 	Comm     [16]byte
-	Filename [16]byte
+	Filename [160]byte
 }
 
 func parseEvent(data []byte) (*Event, error) {
@@ -83,7 +84,7 @@ loop:
 				err = e
 				return
 			} else {
-				log.Printf("killed! pid: %d comm: %s filename: %s", event.Pid,
+				log.Printf("killed! ppid: %d pid: %d comm: %s filename: %s", event.Ppid, event.Pid,
 					goString(event.Comm[:]), goString(event.Filename[:]))
 			}
 		case n := <-lostChannel:
