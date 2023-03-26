@@ -3,5 +3,5 @@ struct event_t {
     int fmode;
     int ret;
     char comm[16];
-    char filename[16];
+    char filename[160];
 };

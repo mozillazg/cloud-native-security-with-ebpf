@@ -24,7 +24,7 @@ struct {
     __uint(value_size, sizeof(u32));
 } events SEC(".maps");
 
-static inline bool str_eq(const char *a, const char *b, int len)
+static __always_inline bool str_eq(const char *a, const char *b, int len)
 {
     for (int i = 0; i < len; i++) {
         if (a[i] != b[i])

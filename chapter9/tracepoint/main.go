@@ -17,7 +17,7 @@ type Event struct {
 	Fmode    int32
 	Ret      int32
 	Comm     [16]byte
-	Filename [16]byte
+	Filename [160]byte
 }
 
 func parseEvent(data []byte) (*Event, error) {

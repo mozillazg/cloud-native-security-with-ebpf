@@ -21,7 +21,6 @@ struct {
 static void get_file_path(const struct path *path, char *buf, size_t size)
 {
     struct qstr dname;
-
     dname = BPF_CORE_READ(path, dentry, d_name);
     bpf_probe_read_kernel(buf, size, dname.name);
 }
