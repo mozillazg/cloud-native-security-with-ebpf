@@ -1,4 +1,4 @@
-module github.com/mozillazg/cloud-native-security-with-ebpf/chapter15/read-file
+module github.com/mozillazg/cloud-native-security-with-ebpf/chapter15/add-sudo
 
 go 1.18
 
