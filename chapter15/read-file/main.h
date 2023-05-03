@@ -5,11 +5,6 @@ struct event_t {
     char content[2048];
 };
 
-struct buffer_t {
-    long unsigned int buffer_addr;
-    unsigned int size;
-};
-
 static __always_inline bool str_eq(const char *a, const char *b, int len)
 {
     for (int i = 0; i < len; i++) {

@@ -13,7 +13,10 @@ import (
 )
 
 type Event struct {
-	Payload [2048]byte
+	Pid uint32
+	Uid uint32
+	Ret uint32
+	Comm [16]byte
 }
 
 func parseEvent(data []byte) (*Event, error) {
@@ -77,7 +80,8 @@ loop:
 				err = e
 				return
 			} else {
-				log.Printf("/etc/passwd:\n%s", event.Payload)
+				log.Printf("pid: %d, uid: %d, comm: %s, ret: %d",
+				 event.Pid, event.Uid, event.Comm, event.Ret)
 			}
 		case n := <-lostChannel:
 			log.Printf("lost %d events", n)
