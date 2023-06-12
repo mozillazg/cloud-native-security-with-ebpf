@@ -1,4 +1,4 @@
-module github.com/mozillazg/cloud-native-security-with-ebpf/chapter11/hide-incoming-traffic
+module github.com/mozillazg/cloud-native-security-with-ebpf/chapter15/hide-incoming-traffic
 
 go 1.18
 
