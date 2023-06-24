@@ -4,13 +4,6 @@
 #include <bpf/bpf_core_read.h>
 #include "main.h"
 
-//struct {
-//    __uint(type, BPF_MAP_TYPE_LRU_HASH);
-//    __uint(max_entries, 2048);
-//    __type(key, u32);
-//    __type(value,  struct *pipe_pair_t[MAX_PIPE_NUM]);
-//} pid_pipes_map SEC(".maps");
-
 struct {
     __uint(type, BPF_MAP_TYPE_LRU_HASH);
     __uint(max_entries, 2048);
@@ -233,6 +226,20 @@ int sys_enter_dup2(struct trace_event_raw_sys_enter *ctx) {
 }
 
 
+SEC("tracepoint/syscalls/sys_enter_execve")
+int sys_enter_execve(struct trace_event_raw_sys_enter *ctx) {
+    char comm[16];
+    bpf_get_current_comm(&comm, sizeof(comm));
+    if (!(str_eq(comm, "bash", 16) || str_eq(comm, "curl", 16))) {
+        return 0;
+    }
+
+    bpf_printk("sys_enter_execve: %s", comm);
+
+    return 0;
+}
+
+
 SEC("tracepoint/syscalls/sys_enter_read")
 int sys_enter_read(struct trace_event_raw_sys_enter *ctx) {
     u32 pid = bpf_get_current_pid_tgid() >> 32;
@@ -417,6 +424,22 @@ int tracepoint_syscalls__sys_exit_write(struct trace_event_raw_sys_exit *ctx) {
     return 0;
 }
 
+SEC("tracepoint/syscalls/sys_enter_clone")
+int tracepoint_syscalls__sys_enter_clone(struct trace_event_raw_sys_enter *ctx) {
+
+    char comm[16];
+    bpf_get_current_comm(&comm, sizeof(comm));
+
+    if (!(str_eq(comm, "bash", 16) || str_eq(comm, "curl", 16) || str_eq(comm, "cat", 16))) {
+        return 0;
+    }
+//
+//    long ret = (long) BPF_CORE_READ(ctx, ret);
+    bpf_printk("sys_enter_clone: %s %d", comm);
+
+    return 0;
+}
+
 
 SEC("tracepoint/syscalls/sys_exit_clone")
 int tracepoint_syscalls__sys_exit_clone(struct trace_event_raw_sys_exit *ctx) {
@@ -445,62 +468,6 @@ int sys_exit_exit_group(struct trace_event_raw_sys_exit *ctx) {
 
     return 0;
 }
-
-//
-//SEC("kprobe/fd_install")
-//int BPF_KPROBE(fd_install, unsigned int fd, struct file *file) {
-//    char filename[16];
-//
-//    get_file_path(file, filename, sizeof(filename));
-//
-//    char comm[16];
-//    bpf_get_current_comm(&comm, sizeof(comm));
-//    if (!(str_eq(comm, "bash", 16) || str_eq(comm, "curl", 16) || str_eq(comm, "cat", 16))) {
-//        return 0;
-//    }
-//
-//    bpf_printk("fd_install: %s %d %s", comm, fd, filename);
-//
-//    return 0;
-//}
-
-//SEC("tracepoint/syscalls/sys_enter_dup")
-//int sys_enter_dup(struct trace_event_raw_sys_enter *ctx) {
-//    char comm[16];
-//    bpf_get_current_comm(&comm, sizeof(comm));
-//    if (!(str_eq(comm, "bash", 16) || str_eq(comm, "curl", 16) || str_eq(comm, "cat", 16))) {
-//        return 0;
-//    }
-//
-////    int fd1 = (int)BPF_CORE_READ(ctx, args[0]);
-////    int fd2 = (int)BPF_CORE_READ(ctx, args[1]);
-//
-//    // struct sock *sk = v;
-//    bpf_printk("sys_enter_dup: %s", comm);
-//
-//    return 0;
-//}
-
-//
-//SEC("tracepoint/syscalls/sys_enter_execve")
-//int tracepoint_syscalls__sys_enter_execve(struct trace_event_raw_sys_enter *ctx) {
-////    if (v == SEQ_START_TOKEN) {
-////        return 0;
-////    }
-//
-//    char comm[16];
-//    bpf_get_current_comm(&comm, sizeof(comm));
-//    if (!(str_eq(comm, "bash", 16) || str_eq(comm, "curl", 16) || str_eq(comm, "cat", 16))) {
-//        return 0;
-//    }
-//
-//    // struct sock *sk = v;
-//    bpf_printk("sys_enter_execve: %s", comm);
-//
-//    return 0;
-//}
-
-
 
 
 char _license[] SEC("license") = "GPL";
