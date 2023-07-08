@@ -16,6 +16,9 @@ struct event_t {
     u8 code;
 };
 
+static __always_inline u32 ip_to_u32(int a, int b, int c, int d) {
+    return (d << 24) + (c << 16) + (b << 8) + a;
+}
 
 static __always_inline bool str_eq(const char *a, const char *b, int len)
 {
