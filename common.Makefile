@@ -49,8 +49,10 @@ CGO_EXTLDFLAGS_DYN = '-w'
 
 PROGRAM = main
 
-all:
+build:
 	$(MAKE) -C . $(PROGRAM)
+
+run:
 	sudo ./${PROGRAM}
 
 # vmlinux header file
