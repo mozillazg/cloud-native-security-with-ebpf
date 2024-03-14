@@ -1,0 +1,38 @@
+name: Build examples
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-examples:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Install dependencies
+        run: |
+          set -e
+          sudo apt-get update
+          sudo apt-get install --yes build-essential pkgconf libelf-dev llvm-12 clang-12
+          for tool in "clang" "llc" "llvm-strip"; do
+            path=$(which $tool-12)
+            test $(which $tool) && sudo mv $(which $tool){,.bak}
+            sudo ln -sf $path ${path%-*}
+          done
+
+          git submodule update --init --recursive
+
+      - name: build examples
+        run: |
+          set -e
+          bash ci.sh
