@@ -1,0 +1,4 @@
+
+
+build:
+	go build
