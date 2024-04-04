@@ -79,6 +79,7 @@ func main() {
 		return
 	}
 	prog, err := bpfModule.GetProgram("handle_xdp")
+	// prog, err := bpfModule.GetProgram("handle_xdp_tcp")
 	if err != nil {
 		return
 	}

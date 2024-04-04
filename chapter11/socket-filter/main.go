@@ -63,6 +63,7 @@ func main() {
 		return
 	}
 	prog, err := bpfModule.GetProgram("socket_filter_icmp")
+	// prog, err := bpfModule.GetProgram("socket_filter_tcp")
 	if err != nil {
 		return
 	}

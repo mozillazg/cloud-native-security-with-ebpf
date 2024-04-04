@@ -34,4 +34,30 @@ int handle_xdp(struct xdp_md *ctx) {
     return XDP_PASS;
 }
 
+SEC("xdp")
+int handle_xdp_tcp(struct xdp_md *ctx) {
+
+    void *data_end = (void *)(long)ctx->data_end;
+    void *data = (void *)(long)ctx->data;
+
+    if ((data + ETH_HLEN + sizeof(struct iphdr)) > data_end) // not ip
+        return XDP_PASS;
+    struct iphdr *ip_hdr = data + ETH_HLEN;
+    if (ip_hdr->protocol != IPPROTO_TCP)  // not tcp
+        return XDP_PASS;
+
+    if (data + ETH_HLEN + sizeof(struct iphdr) + sizeof(struct tcphdr) > data_end)
+        return XDP_PASS;
+
+    struct tcphdr *tcp_hdr = data + ETH_HLEN + sizeof(struct iphdr);
+
+    u32 saddr = ip_hdr->saddr;
+    u32 daddr = ip_hdr->daddr;
+    u32 dest = bpf_htons(tcp_hdr->dest);
+
+    bpf_printk("saddr: %pI4, daddr: %pI4:%d", &saddr, &daddr, dest);
+
+    return XDP_PASS;
+}
+
 char _license[] SEC("license") = "GPL";
