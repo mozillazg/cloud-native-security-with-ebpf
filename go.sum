@@ -1,8 +1,8 @@
-github.com/aquasecurity/libbpfgo v0.4.9-libbpf-1.2.0 h1:pk9L7I6wF1nTfO42+jjXhA8ozRjvtj2ZvHV/i/YC0dE=
-github.com/aquasecurity/libbpfgo v0.4.9-libbpf-1.2.0/go.mod h1:UD3Mfr+JZ/ASK2VMucI/zAdEhb35LtvYXvAUdrdqE9s=
+github.com/aquasecurity/libbpfgo v0.7.0-libbpf-1.4 h1:rQ94U12Xlz2tncE8Rxnw3vpp/9hgUIEu3/Lv0/XQM0Q=
+github.com/aquasecurity/libbpfgo v0.7.0-libbpf-1.4/go.mod h1:iI7QCIZ3kXG0MR+FHsDZck6cYs1y1HyZP3sMObBg0sk=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
-github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ8=
+github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 golang.org/x/net v0.22.0 h1:9sGLhx7iRIHEiX0oAJ3MRZMUCElJgy7Br1nO+AMN3Tc=
 golang.org/x/net v0.22.0/go.mod h1:JKghWKKOSdJwpW2GEx0Ja7fmaKnMsbu+MWVZTokSYmg=
 golang.org/x/sys v0.18.0 h1:DBdB3niSjOA/O0blCZBqDefyWNYveAYMNF1Wum0DYQ4=
