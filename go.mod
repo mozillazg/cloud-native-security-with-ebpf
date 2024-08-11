@@ -1,9 +1,11 @@
 module github.com/mozillazg/cloud-native-security-with-ebpf
 
-go 1.18
+go 1.21
+
+toolchain go1.21.0
 
 require (
-	github.com/aquasecurity/libbpfgo v0.4.9-libbpf-1.2.0
+	github.com/aquasecurity/libbpfgo v0.7.0-libbpf-1.4
 	golang.org/x/net v0.28.0
 )
 
