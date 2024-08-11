@@ -124,6 +124,10 @@ $(PROGRAM): libbpf | $(PROGRAM).bpf.o
 		-tags netgo -ldflags $(CGO_EXTLDFLAGS_STATIC) \
 		-o $(PROGRAM) ./$(PROGRAM).go
 
+.PHONY: cat
+cat:
+	sudo cat /sys/kernel/debug/tracing/trace_pipe
+
 ## clean
 
 clean:
