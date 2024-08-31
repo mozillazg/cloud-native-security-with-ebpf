@@ -12,5 +12,4 @@ make run
 ```
 
 
-在另一个终端中执行一些命令。
-
+TODO: add program for send data via SYN

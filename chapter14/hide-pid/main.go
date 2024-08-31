@@ -54,7 +54,6 @@ func main() {
 	for i, v := range bs {
 		toHidePid[i] = v
 	}
-	log.Printf("%v", toHidePid)
 	config := Config{ToHidePid: toHidePid}
 	if err = bpfModule.InitGlobalVariable("configs", config); err != nil {
 		return
@@ -81,6 +80,7 @@ func main() {
 	if err != nil {
 		return
 	}
+    log.Printf("will hide pid %d", pid)
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 
 	pb.Start()
