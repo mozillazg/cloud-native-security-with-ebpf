@@ -12,4 +12,11 @@ make run
 ```
 
 
-TODO: add program for send data via SYN
+在另一个终端中进入当前目录，然后执行：
+
+```
+cd ./sendsyn/
+make build
+sudo ./sendsyn '!!!CMD: test-foo-bar'
+```
+
