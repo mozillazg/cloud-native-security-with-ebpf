@@ -1,6 +1,8 @@
 # eBPF 云原生安全：原理与实践
 
 <img src="cover.jpg" height=250 alt="eBPF 云原生安全：原理与实践" />
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/mozillazg/cloud-native-security-with-ebpf/build.yml?label=build%20programs&link=https%3A%2F%2Fgithub.com%2Fmozillazg%2Fcloud-native-security-with-ebpf%2Factions%2Fworkflows%2Fbuild.yml)
+
 
 
 《eBPF 云原生安全：原理与实践》书中示例程序的完整源代码。
@@ -8,7 +10,7 @@
 
 ## 链接
 
-<!-- * 豆瓣： -->
+* 豆瓣：<https://book.douban.com/subject/37022239/>
 * 天猫：<https://detail.tmall.com/item.htm?id=822518924758>
 * 京东：<https://item.jd.com/10111206687256.html>
 
