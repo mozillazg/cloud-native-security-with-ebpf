@@ -1,4 +1,4 @@
-# eBPF 云原生安全：原理与实践 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/mozillazg/cloud-native-security-with-ebpf/build.yml?label=build%20programs)](https://github.com/mozillazg/cloud-native-security-with-ebpf/actions/workflows/build.yml)
+# eBPF 云原生安全：原理与实践 [![CI](https://img.shields.io/github/actions/workflow/status/mozillazg/cloud-native-security-with-ebpf/build.yml?label=build%20programs)](https://github.com/mozillazg/cloud-native-security-with-ebpf/actions/workflows/build.yml)
 
 
 <img src="cover.jpg" height=250 alt="eBPF 云原生安全：原理与实践" />
