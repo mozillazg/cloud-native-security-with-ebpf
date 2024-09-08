@@ -7,7 +7,7 @@
 #define ETH_P_IP 0x0800 /* Internet Protocol packet	*/ // ipv4
 #define ETH_HLEN 14 /* Total octets in header.	 */
 #define TASK_COMM_LEN 16
-#define TC_ACT_OK 0
+#define TC_ACT_UNSPEC (-1)
 
 
 struct sock_key {
@@ -114,13 +114,13 @@ int on_egress(struct __sk_buff *skb) {
     void *data = (void *)(long)skb->data;
 
     if ((data + ETH_HLEN + sizeof(struct iphdr)) > data_end)
-        return TC_ACT_OK;
+        return TC_ACT_UNSPEC;
     struct iphdr *ip_hdr = data + ETH_HLEN;
     if (ip_hdr->protocol != IPPROTO_TCP)
-        return TC_ACT_OK;
+        return TC_ACT_UNSPEC;
     struct tcphdr *tcp_hdr = (void *)ip_hdr + sizeof(struct iphdr);
     if ((void *)tcp_hdr + sizeof(struct tcphdr) > data_end) {
-        return TC_ACT_OK;
+        return TC_ACT_UNSPEC;
     }
 
     key.saddr = ip_hdr->saddr;
@@ -128,7 +128,7 @@ int on_egress(struct __sk_buff *skb) {
 
     value = bpf_map_lookup_elem(&socks, &key);
     if (!value) {
-        return TC_ACT_OK;
+        return TC_ACT_UNSPEC;
     }
     u32 daddr = ip_hdr->daddr;
     u16 dport = bpf_ntohs(tcp_hdr->dest);
@@ -137,7 +137,7 @@ int on_egress(struct __sk_buff *skb) {
     bpf_printk("%s %pI4:%d", value->comm, &key.saddr, key.sport);
     bpf_printk("%s               -> %pI4:%d", value->comm, &daddr, dport);
 
-    return TC_ACT_OK;
+    return TC_ACT_UNSPEC;
 }
 
 
