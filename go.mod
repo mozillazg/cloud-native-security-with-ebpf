@@ -6,7 +6,7 @@ toolchain go1.21.0
 
 require (
 	github.com/aquasecurity/libbpfgo v0.7.0-libbpf-1.4
-	golang.org/x/net v0.28.0
+	golang.org/x/net v0.29.0
 )
 
-require golang.org/x/sys v0.24.0
+require golang.org/x/sys v0.25.0
