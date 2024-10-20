@@ -180,7 +180,8 @@
 * 系统：Ubuntu 22.04
 * 依赖 (安装和配置方法详见 [CI](https://github.com/mozillazg/cloud-native-security-with-ebpf/blob/master/.github/workflows/build.yml) ，也可以使用 [Vagrant](https://www.vagrantup.com/) 一键创建开发环境)：
   * Go >= 1.21
-  * Clang/LLM 12
+  * Clang/LLVM 12
+  * gcc
   * libelf-dev
   * zlib1g-dev
   * libzstd-dev
