@@ -3,7 +3,7 @@ Vagrant.configure("2") do |config|
   config.vm.box_version = "20220902.0.0"
   config.vm.disk :disk, size: "20GB"
   config.vm.synced_folder "../", "/home/vagrant/go/src/github.com/mozillazg/cloud-native-security-with-ebpf", create: true
-  config.ssh.extra_args = ["-t", "cd /home/vagrant/go/src/github.com/mozillazg/cloud-native-security-with-ebpf/chapter11; bash --login"]
+  config.ssh.extra_args = ["-t", "cd /home/vagrant/go/src/github.com/mozillazg/cloud-native-security-with-ebpf; bash --login"]
   config.vm.provider "virtualbox" do |v|
     v.memory = 2048
     v.cpus = 2
@@ -11,21 +11,22 @@ Vagrant.configure("2") do |config|
 
   # install dependencies
   config.vm.provision "shell", inline: <<-SHELL
-      cd /home/vagrant/go/src/github.com/mozillazg/cloud-native-security-with-ebpf/chapter11
+      cd /home/vagrant/go/src/github.com/mozillazg/cloud-native-security-with-ebpf
 
       sed -i "s@http://.*archive.ubuntu.com@https://mirrors.tuna.tsinghua.edu.cn@g" /etc/apt/sources.list
       sed -i "s@http://.*security.ubuntu.com@https://mirrors.tuna.tsinghua.edu.cn@g" /etc/apt/sources.list
       apt-get update
       apt-get update
 
-      apt-get install --yes build-essential pkgconf libelf-dev llvm-12 clang-12 linux-tools-$(uname -r)
+      apt-get install --yes build-essential pkgconf zlib1g-dev libelf-dev libzstd-dev llvm-12 clang-12 \
+          linux-tools-common linux-tools-generic linux-tools-$(uname -r)
       for tool in "clang" "llc" "llvm-strip"
       do
         path=$(which $tool-12)
         ln -s -f $path ${path%-*}
       done
 
-      snap install go --channel=1.18/stable --classic
+      snap install go --channel=1.21/stable --classic
       chown vagrant -R /home/vagrant/go/
       grep GOPROXY /home/vagrant/.bashrc || \
           echo 'export GOPROXY=https://goproxy.cn,direct' >> /home/vagrant/.bashrc

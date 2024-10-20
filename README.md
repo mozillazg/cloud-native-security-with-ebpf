@@ -174,8 +174,23 @@
 </details>
 
 
+### 开发环境
 
-源码目录：
+开发环境如下：
+* 系统：Ubuntu 22.04
+* 依赖 (安装和配置方法详见 [CI](https://github.com/mozillazg/cloud-native-security-with-ebpf/blob/master/.github/workflows/build.yml) ，也可以使用 [Vagrant](https://www.vagrantup.com/) 一键创建开发环境)：
+  * Go >= 1.21
+  * Clang/LLM 12
+  * libelf-dev
+  * zlib1g-dev
+  * libzstd-dev
+  * pkgconf
+  * make
+  * git
+  * linux-tools-common linux-tools-generic linux-tools-$(uname -r)
+  * build-essential
+
+### 源码目录
 
 
 | 章节   | 源代码                                                                                                                                                                                                                                                                 |
@@ -229,3 +244,4 @@
 | 14.3 探测和审计恶意 eBPF 程序  | |
 | 14.3.2 | [chapter14/inspect-ebpf-helpers](chapter14/inspect-ebpf-helpers)                                                                                                                                                                                                   |
 | 14.3.3 | [chapter14/check-helper-call](chapter14/check-helper-call)                                                                                                                                                                                                         |
+
